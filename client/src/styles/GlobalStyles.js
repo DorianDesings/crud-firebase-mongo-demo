@@ -17,11 +17,8 @@ const GlobalStyles = createGlobalStyle`
     color: aliceblue;
     background-color: #333;
     font-family: sans-serif;
+    text-align: center;
   }
-
-  h1,
-  h2,
-  h3{font-family:  serif;}
 
   a{
     text-decoration: none;

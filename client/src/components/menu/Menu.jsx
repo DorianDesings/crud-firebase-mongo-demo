@@ -9,10 +9,14 @@ const Menu = () => {
 					<NavLink to='/'>Home</NavLink>
 				</li>
 				<li>
-					<NavLink to='/about'>About</NavLink>
+					<NavLink to='/login'>Login</NavLink>
 				</li>
 				<li>
-					<NavLink to='/contact'>Contact</NavLink>
+					<NavLink to='/register'>Register</NavLink>
+				</li>
+
+				<li>
+					<NavLink to='/profile'>Profile</NavLink>
 				</li>
 			</StyledMenu>
 		</nav>
