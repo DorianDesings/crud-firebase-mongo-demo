@@ -5,13 +5,13 @@ import { AuthContext } from '../contexts/Auth.context';
 
 export const AuthProvider = ({ children }) => {
 	const [currentUser, setCurrentUser] = useState(null);
-	const [attemps, setAttemps] = useState(0);
+	const [attempts, setAttempts] = useState(0);
 
 	useEffect(() => {
 		const unsubscribe = auth.onAuthStateChanged(async user => {
 			if (user) {
 				// El usuario está autenticado
-				await getUserInfoFromMongo(user, setCurrentUser, attemps, setAttemps);
+				await getUserInfoFromMongo(user, setCurrentUser, attempts, setAttempts);
 			} else {
 				// El usuario no está autenticado
 				setCurrentUser(null);
@@ -57,7 +57,7 @@ const getUserInfoFromMongo = async (
 	user,
 	setCurrentUser,
 	attempts,
-	setAttemps
+	setAttempts
 ) => {
 	try {
 		const response = await fetch(`http://localhost:3000/users/${user.uid}`);
@@ -67,7 +67,7 @@ const getUserInfoFromMongo = async (
 				...user,
 				...userInfo
 			});
-			setAttemps(0);
+			setAttempts(0);
 		} else {
 			throw new Error('Error al obtener la información del usuario');
 		}
@@ -76,8 +76,8 @@ const getUserInfoFromMongo = async (
 			// Intenta nuevamente después de un tiempo
 			setTimeout(
 				() =>
-					getUserInfoFromMongo(user, setCurrentUser, attempts + 1, setAttemps),
-				100
+					getUserInfoFromMongo(user, setCurrentUser, attempts + 1, setAttempts),
+				1000
 			);
 		}
 	}

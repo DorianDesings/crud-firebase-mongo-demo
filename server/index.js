@@ -59,12 +59,6 @@ io.on('connection', socket => {
   });
 });
 
-server.listen(process.env.SOCKET_IO_PORT, () => {
-  console.log(
-    `Servidor Socket.io escuchando en el puerto ${process.env.SOCKET_IO_PORT}`
-  );
-});
-
 const startServer = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URL);
@@ -76,6 +70,12 @@ const startServer = async () => {
     process.env.EXPRESS_PORT,
     console.log(`Server listen on port ${process.env.EXPRESS_PORT}`)
   );
+
+  server.listen(process.env.SOCKET_IO_PORT, () => {
+    console.log(
+      `Servidor Socket.io escuchando en el puerto ${process.env.SOCKET_IO_PORT}`
+    );
+  });
 };
 
 startServer();
