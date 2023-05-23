@@ -8,10 +8,10 @@ export const AuthProvider = ({ children }) => {
 	const [refetchCounter, setRefetchCounter] = useState(0);
 
 	useEffect(() => {
-		const unsuscribre = auth.onAuthStateChanged(user => {
+		const unsubscribe = auth.onAuthStateChanged(async user => {
 			if (user) {
 				// El usuario está autenticado
-				getUserInfoFromMongo(
+				await getUserInfoFromMongo(
 					user,
 					setCurrentUser,
 					refetchCounter,
@@ -23,32 +23,32 @@ export const AuthProvider = ({ children }) => {
 			}
 		});
 
-		return () => unsuscribre();
+		return () => unsubscribe();
 	}, []);
 
 	useEffect(() => {
-		const socket = io('http://localhost:4000'); // Establece la conexión del socket
+		const socket = io('http://localhost:4000');
 
-		// Maneja el evento de cambio en la colección
 		socket.on('collectionChange', change => {
 			switch (change.operationType) {
 				case 'update':
-					console.log('UPADATE USER', currentUser);
-
+					console.log('UPDATE USER', currentUser);
+					setCurrentUser(prevUser => ({
+						...prevUser,
+						...change.updateDescription.updateFields
+					}));
 					break;
-
 				default:
 					break;
 			}
 		});
 
-		// Solicita iniciar la escucha de cambios en la colección
 		socket.emit('startCollectionListener');
-		// Limpia la conexión del socket al desmontar el componente
+
 		return () => {
 			socket.disconnect();
 		};
-	}, []);
+	}, []); // Agrega currentUser como dependencia del useEffect
 
 	return (
 		<AuthContext.Provider value={{ currentUser }}>
@@ -60,14 +60,33 @@ export const AuthProvider = ({ children }) => {
 const getUserInfoFromMongo = async (
 	user,
 	setCurrentUser,
-	refetchCounter,
+	attempts,
 	setRefetchCounter
 ) => {
-	const response = await fetch(`http://localhost:3000/users/${user.uid}`);
-	if (!response.ok && refetchCounter < 5) {
-		setRefetchCounter(refetchCounter + 1);
-		getUserInfoFromMongo(user, setCurrentUser);
+	console.log('GET USER INFO', user);
+	try {
+		const response = await fetch(`http://localhost:3000/users/${user.uid}`);
+		if (response.ok) {
+			const userInfo = await response.json();
+			setCurrentUser({ ...user, ...userInfo });
+		} else {
+			throw new Error('Error al obtener la información del usuario');
+		}
+	} catch (error) {
+		if (attempts < 5) {
+			// Intenta nuevamente después de un tiempo
+			setTimeout(
+				() =>
+					getUserInfoFromMongo(
+						user,
+						setCurrentUser,
+						attempts + 1,
+						setRefetchCounter
+					),
+				1000
+			);
+		} else {
+			setRefetchCounter(prevCounter => prevCounter + 1);
+		}
 	}
-	const userInfo = await response.json();
-	setCurrentUser({ ...user, ...userInfo });
 };
