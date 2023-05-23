@@ -5,6 +5,8 @@ import { useFetch } from '../../hooks/useFetch';
 const Home = () => {
 	const { currentUser } = useContext(AuthContext);
 
+	console.log(currentUser);
+
 	const {
 		data: books,
 		loading: loadingBooks,

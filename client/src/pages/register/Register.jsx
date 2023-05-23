@@ -14,6 +14,7 @@ const Register = () => {
 	} = useFetch({
 		url: 'http://localhost:3000/users'
 	});
+
 	const { currentUser } = useContext(AuthContext);
 
 	const [registerData, setRegisterData] = useState({

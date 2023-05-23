@@ -36,11 +36,19 @@ io.on('connection', socket => {
   // Maneja la solicitud de cambio de colección
   socket.on('startCollectionListener', () => {
     // Establece el cambio de flujo (change stream) en la colección
-    const collection = client.db('library').collection('users');
-    const changeStream = collection.watch();
+    const collectionUsers = client.db('library').collection('users');
+    const changeStreamUsers = collectionUsers.watch();
 
     // Escucha los eventos de cambio en el flujo y los emite a través del socket
-    changeStream.on('change', change => {
+    changeStreamUsers.on('change', change => {
+      socket.emit('collectionUsersChange', change);
+    });
+
+    const collectionBooks = client.db('library').collection('books');
+    const changeStreamBooks = collectionBooks.watch();
+
+    // Escucha los eventos de cambio en el flujo y los emite a través del socket
+    changeStreamBooks.on('change', change => {
       socket.emit('collectionChange', change);
     });
   });

@@ -5,13 +5,13 @@ import { AuthContext } from '../../contexts/Auth.context';
 import { useFetch } from '../../hooks/useFetch';
 
 const Profile = () => {
-	const { currentUser, firebaseLoading } = useContext(AuthContext);
+	const { currentUser } = useContext(AuthContext);
 
 	const navigate = useNavigate();
 
 	const { setFetchInfo } = useFetch();
 
-	if (!currentUser && !firebaseLoading) return <Navigate to='/' />;
+	if (!currentUser) return <Navigate to='/' />;
 
 	return (
 		<>
@@ -34,8 +34,9 @@ const updateUser = async (e, setFetchInfo, currentUser, navigate) => {
 	e.preventDefault();
 
 	const newInfo = {
-		username: 'Karim'
+		username: 'Carlos'
 	};
+
 	try {
 		await setFetchInfo({
 			url: 'http://localhost:3000/users/' + currentUser.uid,

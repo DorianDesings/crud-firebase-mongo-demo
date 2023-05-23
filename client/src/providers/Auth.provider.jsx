@@ -7,8 +7,6 @@ export const AuthProvider = ({ children }) => {
 	const [currentUser, setCurrentUser] = useState(null);
 	const [attemps, setAttemps] = useState(0);
 
-	console.log(currentUser);
-
 	useEffect(() => {
 		const unsubscribe = auth.onAuthStateChanged(async user => {
 			if (user) {
@@ -26,10 +24,10 @@ export const AuthProvider = ({ children }) => {
 	useEffect(() => {
 		const socket = io('http://localhost:4000');
 
-		socket.on('collectionChange', change => {
+		socket.on('collectionUsersChange', async change => {
 			switch (change.operationType) {
 				case 'update':
-					getUserInfoFromMongo(
+					await getUserInfoFromMongo(
 						currentUser,
 						setCurrentUser,
 						attemps,
@@ -40,8 +38,6 @@ export const AuthProvider = ({ children }) => {
 					break;
 			}
 		});
-
-		// ...change.updateDescription.updateFields
 
 		socket.emit('startCollectionListener');
 
@@ -81,10 +77,8 @@ const getUserInfoFromMongo = async (
 			setTimeout(
 				() =>
 					getUserInfoFromMongo(user, setCurrentUser, attempts + 1, setAttemps),
-				1000
+				100
 			);
-		} else {
-			setAttemps(prevCounter => prevCounter + 1);
 		}
 	}
 };
