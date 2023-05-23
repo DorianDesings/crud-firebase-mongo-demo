@@ -34,7 +34,7 @@ const updateUser = async (e, setFetchInfo, currentUser, navigate) => {
 	e.preventDefault();
 
 	const newInfo = {
-		username: 'dfgd'
+		username: 'qweqwe'
 	};
 	try {
 		await setFetchInfo({
@@ -51,8 +51,6 @@ const updateUser = async (e, setFetchInfo, currentUser, navigate) => {
 	} catch (err) {
 		console.log(err);
 	}
-
-	navigate('/');
 };
 
 export default Profile;

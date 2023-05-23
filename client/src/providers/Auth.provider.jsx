@@ -5,18 +5,16 @@ import { AuthContext } from '../contexts/Auth.context';
 
 export const AuthProvider = ({ children }) => {
 	const [currentUser, setCurrentUser] = useState(null);
-	const [refetchCounter, setRefetchCounter] = useState(0);
+	const [attemps, setAttemps] = useState(0);
+
+	console.log(currentUser);
 
 	useEffect(() => {
 		const unsubscribe = auth.onAuthStateChanged(async user => {
 			if (user) {
 				// El usuario está autenticado
-				await getUserInfoFromMongo(
-					user,
-					setCurrentUser,
-					refetchCounter,
-					setRefetchCounter
-				);
+				console.log('FIREBASE USER', user);
+				await getUserInfoFromMongo(user, setCurrentUser, attemps, setAttemps);
 			} else {
 				// El usuario no está autenticado
 				setCurrentUser(null);
@@ -32,11 +30,12 @@ export const AuthProvider = ({ children }) => {
 		socket.on('collectionChange', change => {
 			switch (change.operationType) {
 				case 'update':
-					console.log('UPDATE USER', currentUser);
-					setCurrentUser(prevUser => ({
-						...prevUser,
-						...change.updateDescription.updateFields
-					}));
+					console.log('CHANGE', change);
+					console.log(currentUser);
+					// setCurrentUser(prevUser => ({
+					// 	...prevUser,
+					// 	...change.updateDescription.updateFields
+					// }));
 					break;
 				default:
 					break;
@@ -61,14 +60,16 @@ const getUserInfoFromMongo = async (
 	user,
 	setCurrentUser,
 	attempts,
-	setRefetchCounter
+	setAttemps
 ) => {
-	console.log('GET USER INFO', user);
 	try {
 		const response = await fetch(`http://localhost:3000/users/${user.uid}`);
 		if (response.ok) {
 			const userInfo = await response.json();
-			setCurrentUser({ ...user, ...userInfo });
+			setCurrentUser({
+				...user,
+				...userInfo
+			});
 		} else {
 			throw new Error('Error al obtener la información del usuario');
 		}
@@ -77,16 +78,11 @@ const getUserInfoFromMongo = async (
 			// Intenta nuevamente después de un tiempo
 			setTimeout(
 				() =>
-					getUserInfoFromMongo(
-						user,
-						setCurrentUser,
-						attempts + 1,
-						setRefetchCounter
-					),
+					getUserInfoFromMongo(user, setCurrentUser, attempts + 1, setAttemps),
 				1000
 			);
 		} else {
-			setRefetchCounter(prevCounter => prevCounter + 1);
+			setAttemps(prevCounter => prevCounter + 1);
 		}
 	}
 };
