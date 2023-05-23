@@ -36,11 +36,21 @@ controller.createUser = async (req, res) => {
     books: []
   });
 
-  await newUser.save();
+  const userCreated = await newUser.save();
 
-  allUsers = await UserModel.find();
+  console.log(userCreated);
 
-  res.send(allUsers);
+  res.send(userCreated);
+};
+
+controller.updateUser = async (req, res) => {
+  console.log(req.params.id);
+  const userUpdated = await UserModel.updateOne(
+    { _id: req.params.id },
+    { $set: { ...req.body } }
+  );
+  console.log(userUpdated);
+  res.send(userUpdated);
 };
 
 module.exports = controller;

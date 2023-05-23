@@ -1,6 +1,15 @@
-const { v4 } = require('uuid');
+const { MongoClient } = require('mongodb');
 const express = require('express');
 const app = express();
+const { Server } = require('socket.io');
+const server = require('http').Server(app);
+const io = new Server(server, {
+  cors: {
+    origin: '*', // O cambia '*' por la URL de tu aplicación de React
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type', 'Authorization'] // Corrige el nombre del encabezado
+  }
+});
 const cors = require('cors');
 
 app.use(express.json());
@@ -11,12 +20,42 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 mongoose.set('strictQuery', false);
 
-const BookModel = require('./schemas/book-schema');
 const userRoutes = require('./routers/user.routes');
 const bookRoutes = require('./routers/book.routes');
 
 app.use('/users', userRoutes);
 app.use('/books', bookRoutes);
+
+// Configura la conexión a MongoDB
+const uri = process.env.MONGODB_URL;
+const client = new MongoClient(uri);
+
+io.on('connection', socket => {
+  console.log('Cliente conectado');
+
+  // Maneja la solicitud de cambio de colección
+  socket.on('startCollectionListener', () => {
+    // Establece el cambio de flujo (change stream) en la colección
+    const collection = client.db('library').collection('users');
+    const changeStream = collection.watch();
+
+    // Escucha los eventos de cambio en el flujo y los emite a través del socket
+    changeStream.on('change', change => {
+      socket.emit('collectionChange', change);
+    });
+  });
+
+  // Maneja la desconexión del cliente
+  socket.on('disconnect', () => {
+    console.log('Cliente desconectado');
+  });
+});
+
+server.listen(process.env.SOCKET_IO_PORT, () => {
+  console.log(
+    `Servidor Socket.io escuchando en el puerto ${process.env.SOCKET_IO_PORT}`
+  );
+});
 
 const startServer = async () => {
   try {
@@ -26,8 +65,8 @@ const startServer = async () => {
     console.error(`Connection error`);
   }
   app.listen(
-    process.env.PORT,
-    console.log(`Server listen on port ${process.env.PORT}`)
+    process.env.EXPRESS_PORT,
+    console.log(`Server listen on port ${process.env.EXPRESS_PORT}`)
   );
 };
 

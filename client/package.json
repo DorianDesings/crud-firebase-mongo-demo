@@ -10,9 +10,11 @@
 	},
 	"dependencies": {
 		"firebase": "^9.22.0",
+		"mongodb": "^5.5.0",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",
 		"react-router-dom": "^6.11.1",
+		"socket.io-client": "^4.6.1",
 		"uuid": "9.0.0"
 	},
 	"devDependencies": {

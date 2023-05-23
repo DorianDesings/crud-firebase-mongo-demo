@@ -1,7 +1,15 @@
 import { useEffect, useState } from 'react';
 
 const fetchData = async (fetchInfo, setFetchStatus, signal) => {
-	if (!fetchInfo) return;
+	if (!fetchInfo) {
+		setFetchStatus({
+			data: undefined,
+			loading: false,
+			error: undefined
+		});
+
+		return;
+	}
 
 	const { url, options } = fetchInfo;
 
