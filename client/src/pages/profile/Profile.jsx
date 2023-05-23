@@ -34,7 +34,7 @@ const updateUser = async (e, setFetchInfo, currentUser, navigate) => {
 	e.preventDefault();
 
 	const newInfo = {
-		username: 'qweqwe'
+		username: 'Karim'
 	};
 	try {
 		await setFetchInfo({
@@ -48,6 +48,8 @@ const updateUser = async (e, setFetchInfo, currentUser, navigate) => {
 				}
 			}
 		});
+
+		navigate('/');
 	} catch (err) {
 		console.log(err);
 	}

@@ -13,7 +13,6 @@ export const AuthProvider = ({ children }) => {
 		const unsubscribe = auth.onAuthStateChanged(async user => {
 			if (user) {
 				// El usuario está autenticado
-				console.log('FIREBASE USER', user);
 				await getUserInfoFromMongo(user, setCurrentUser, attemps, setAttemps);
 			} else {
 				// El usuario no está autenticado
@@ -30,24 +29,26 @@ export const AuthProvider = ({ children }) => {
 		socket.on('collectionChange', change => {
 			switch (change.operationType) {
 				case 'update':
-					console.log('CHANGE', change);
-					console.log(currentUser);
-					// setCurrentUser(prevUser => ({
-					// 	...prevUser,
-					// 	...change.updateDescription.updateFields
-					// }));
+					getUserInfoFromMongo(
+						currentUser,
+						setCurrentUser,
+						attemps,
+						setAttemps
+					);
 					break;
 				default:
 					break;
 			}
 		});
 
+		// ...change.updateDescription.updateFields
+
 		socket.emit('startCollectionListener');
 
 		return () => {
 			socket.disconnect();
 		};
-	}, []); // Agrega currentUser como dependencia del useEffect
+	}, [currentUser]); // Agrega currentUser como dependencia del useEffect
 
 	return (
 		<AuthContext.Provider value={{ currentUser }}>
@@ -70,6 +71,7 @@ const getUserInfoFromMongo = async (
 				...user,
 				...userInfo
 			});
+			setAttemps(0);
 		} else {
 			throw new Error('Error al obtener la información del usuario');
 		}
